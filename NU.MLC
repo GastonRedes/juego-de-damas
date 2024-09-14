@@ -1,0 +1,90 @@
+NU       SUBENTRY BASE=(3)
+
+         LR    2,1
+         L     7,0(2)
+         L     6,4(2)
+         L     5,8(2)
+         L     4,12(2)
+         L     9,16(2)
+         CLC   0(1,9),=C'1'
+         BE    UNO
+         CLC   0(1,9),=C'2'
+         BE    DOS
+         CLC   0(1,9),=C'3'
+         BE    TRES
+         ZAP   EMPA,=P'9'
+         B     LUEGO
+TRES     ZAP   EMPA,=P'7'
+         B     LUEGO
+DOS      ZAP   EMPA,=P'-7'
+         B     LUEGO
+UNO      ZAP   EMPA,=P'-9'
+
+LUEGO    CP    7(1,6),=P'0'
+         BE    JUG1
+         MVC   COM3+0(1),=C'1'
+         MVC   COM4+0(1),=C'3'
+         MVC   COMPARA1+0(1),=C'4'
+         B     CONTI
+
+JUG1     MVC   COM3+0(1),=C'2'
+         MVC   COM4+0(1),=C'4'
+         MVC   COMPARA1+0(1),=C'3'  
+
+CONTI    ZAP   DOBLE2,0(8,4)
+         AP    DOBLE2,EMPA
+         CP    DOBLE2,=P'63'
+         BH    JUGADOR2
+         CP    DOBLE2,=P'0'
+         BL    JUGADOR2      
+         CVB   8,DOBLE2
+         AR    7,8
+         MVC   COMPARA2+0(1),0(7)
+         CLC   COMPARA2,COM3
+         BE    PAS
+         CLC   COMPARA2,COM4
+         BE    PAS
+         B     JUGADOR2
+
+PAS      L     7,0(2)
+         AP    DOBLE2,EMPA
+         CP    DOBLE2,=P'63'
+         BH    JUGADOR2
+         CP    DOBLE2,=P'0'
+         BL    JUGADOR2
+         CVB   8,DOBLE2
+         AR    7,8
+         MVC   COMPARA2+0(1),0(7)
+         CLI   COMPARA2,C'B'    
+         BE    PAS2  
+         B     JUGADOR2
+
+PAS2     ZAP   DOBLE3,DOBLE2
+         L     7,0(2)
+         CVB   8,DOBLE3
+         AR    7,8 
+         MVC   0(1,7),COMPARA1
+         L     7,0(2)
+         SP    DOBLE3,EMPA
+         CVB   8,DOBLE3
+         AR    7,8
+         MVC   0(1,7),=C'B'
+         L     7,0(2)
+         SP    DOBLE3,EMPA
+         CVB   8,DOBLE3
+         AR    7,8
+         MVC   0(1,7),=C'B'
+         MVC   0(1,5),=C'B'
+         B     FINAL
+JUGADOR2 MVC   0(1,5),=C'A'       
+FINAL    ZAP   0(8,4),DOBLE2
+         SUBEXIT
+
+COMPARA2 DS    CL1
+COMPARA1 DS    CL1
+COM3     DS    CL1
+COM4     DS    CL1
+EMPA     DS    PL1
+DOBLE3   DS    D
+DOBLE2   DS    D
+         END                              

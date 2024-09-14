@@ -1,0 +1,61 @@
+DIBUJAR  SUBENTRY BASE=(3)
+         
+         LR    2,1
+         L     7,0(2)
+
+SIGO2    LA    8,MUESTRO                                                   
+                                              
+         WTO   '              ----------------------------------------'                    
+         MVC   0(14,8),=C'             |'
+         
+         LA    8,14(8)
+         
+
+SIGO     CLC   0(1,7),=C'1'
+         BE    DAMAB
+         CLC   0(1,7),=C'2'
+         BE    DAMAN
+         CLC   0(1,7),=C'3'
+         BE    REINAB
+         CLC   0(1,7),=C'4'
+         BE    REINAN
+         CLC   0(1,7),=C'N'
+         BE    NEGRO 
+         MVC   0(5,8),=C'     ' 
+         B     OTRO
+DAMAN    MVC   0(5,8),=C'  ø  '             
+         B     OTRO
+DAMAB    MVC   0(5,8),=C'  o  '         
+         B     OTRO
+NEGRO    MVC   0(5,8),=C':::::' 
+         B     OTRO
+REINAB   MVC   0(5,8),=C'  O  '             
+         B     OTRO
+REINAN   MVC   0(5,8),=C'  Ø  '             
+                
+OTRO     LA    8,5(8)
+         LA    7,1(7)
+         AP    EMPA,=P'1'
+         CP    EMPA,=P'8'
+         BNE   SIGO
+         MVC   0(1,8),=C'|'
+         WTO   MF=(E,WTOBLOCK)
+
+         ZAP   EMPA,=P'0'  
+         AP    EMPA2,=P'1'
+         CP    EMPA2,=P'8'
+         BNE   SIGO2
+         WTO   '              ----------------------------------------'   
+         ZAP   EMPA2,=P'0'
+         
+         SUBEXIT
+
+WTOBLOCK DC    H'59'
+         DC    H'0'
+MUESTRO  DS    CL55
+
+EMPA     DC    PL1'0'
+
+EMPA2    DC    PL1'0'
+ 
+         END

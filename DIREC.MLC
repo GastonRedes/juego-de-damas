@@ -1,0 +1,54 @@
+DIREC    SUBENTRY BASE=(3)
+
+         LR    2,1
+         L     7,0(2)
+         L     6,4(2)
+         L     5,8(2)
+         L     4,12(2)
+         L     9,16(2)
+         CP    7(1,6),=P'0'
+         BE    NONIEGO
+         MVC   CAR,=C'1'
+         MVC   CAR2,=C'3'
+         CLI   0(5),C'1'
+         BE    I
+         ZAP   EMPA,=P'7'
+         MP    EMPA,=P'-1' 
+         B     SUMA
+
+I        ZAP   EMPA,=P'9'
+         MP    EMPA,=P'-1' 
+         B     SUMA
+
+NONIEGO  MVC   CAR,=C'2'
+         MVC   CAR2,=C'4'
+         CLI   0(5),C'1'
+         BE    I2
+         ZAP   EMPA,=P'9'
+         B     SUMA
+ 
+I2       ZAP   EMPA,=P'7'
+
+SUMA     AP    0(8,9),EMPA
+         CVB   8,0(9)
+         AR    7,8
+         MVC   COMPARA2,0(7)
+         CLC   COMPARA2,CAR
+         BE    RESUL
+         CLC   COMPARA2,CAR2
+         BE    RESUL
+         CLI   COMPARA2,C'B'    
+         BE    BLAN
+         MVC   0(1,4),=C'C'
+         B     FIN
+BLAN     MVC   0(1,4),=C'B'
+         B     FIN
+RESUL    MVC   0(1,4),=C'A'
+
+FIN      SUBEXIT
+
+COMPARA2 DS    CL1
+EMPA     DS    PL1
+CAR      DS    CL1
+CAR2     DS    CL1
+         END

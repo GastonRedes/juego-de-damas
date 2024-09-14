@@ -1,0 +1,84 @@
+VERA     SUBENTRY BASE=(3)
+
+         LR    2,1
+         L     7,0(2)
+         L     6,4(2)
+         L     5,8(2)
+         L     4,12(2)
+         
+         
+         CP    7(1,6),=P'0'
+         BE    SI
+         MVC   CAR+0(1),=C'1'
+         MVC   CAR2+0(1),=C'3'
+         B     SIGUE
+SI       MVC   CAR+0(1),=C'2'
+         MVC   CAR2+0(1),=C'4'
+
+
+SIGUE    ZAP   DOBLE2,0(8,4)
+         AP    DOBLE2,=P'9'
+         CP    DOBLE2,=P'63'
+         BH    VERAVI
+         CVB   8,DOBLE2
+         AR    7,8
+         MVC   COMPARA2+0(1),0(7)
+         
+         CLC   COMPARA2,CAR   
+         BE    FIN1
+         CLC   COMPARA2,CAR2
+         BE    FIN1
+
+VERAVI   L     7,0(2)
+         ZAP   DOBLE2,0(8,4)
+         AP    DOBLE2,=P'7'
+         CP    DOBLE2,=P'63'
+         BH    VERARD
+         CVB   8,DOBLE2
+         AR    7,8
+         MVC   COMPARA2+0(1),0(7)
+         
+         CLC   COMPARA2,CAR   
+         BE    FIN1
+         CLC   COMPARA2,CAR2
+         BE    FIN1
+         
+VERARD   L     7,0(2)      
+         ZAP   DOBLE2,0(8,4)
+         SP    DOBLE2,=P'7'
+         CP    DOBLE2,=P'0'
+         BL    VERARI
+
+         CVB   8,DOBLE2
+         AR    7,8
+         MVC   COMPARA2+0(1),0(7)
+         
+         CLC   COMPARA2,CAR    
+         BE    FIN1
+         CLC   COMPARA2,CAR2
+         BE    FIN1
+
+VERARI   L     7,0(2)
+         ZAP   DOBLE2,0(8,4)
+         SP    DOBLE2,=P'9'
+         CP    DOBLE2,=P'0'
+         BL    FIN0
+         CVB   8,DOBLE2
+         AR    7,8
+         MVC   COMPARA2+0(1),0(7)
+         
+         CLC   COMPARA2,CAR    
+         BE    FIN1
+         CLC   COMPARA2,CAR2
+         BE    FIN1
+FIN0     MVC   0(1,5),=C'A'
+         B     FIN2       
+FIN1     MVC   0(1,5),=C'E'
+
+FIN2     SUBEXIT
+COMPARA2 DS    CL1
+CAR      DS    CL1
+CAR2     DS    CL1
+DOBLE2   DS    D
+         END
+

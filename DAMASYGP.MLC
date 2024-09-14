@@ -1,0 +1,464 @@
+DAMASYGP SUBENTRY BASE=(3)
+
+REGRESO  WTO   'INGRESE :'
+         WTO   '1 - PARA JUGAR DAMAS CLASICAS'       
+         WTO   '2 - PARA JUGAR GANA PIERDE (DAMAS AL REVEZ)'   
+         WTOR  '3 - PARA TERMINAR ',ELECCION,,WAITECB
+         WAIT  ECB=WAITECB
+         CLI   ELECCION,C'1'
+         BE    DAMAS
+         CLI   ELECCION,C'2'
+         BE    DAMAS
+         CLI   ELECCION,C'3'
+         BE    TERMINO
+         B     REGRESO
+
+DAMAS    LA    1,DIREMAT
+         OI    0(1),X'80'
+         L     15,=V(DIBUJAR) 
+         BALR  14,15
+         WTO   'LAS FILAS,COMO LAS COLUMNAS,SE EMPIEZAN A CONTAR'
+         WTO   'DE ARRIBA HACIA ABAJO (FILAS) Y DE IZQUIERDA A' 
+         WTO   'DERECHA (COLUMNAS) AMBAS A PARTIR DEL NUMERO 1'
+        
+* ME FIJO SI NO PUEDE MOVER NINGUNA FICHA
+
+PEDIFILA ZAP   PRE1,=P'0'
+         ZAP   EMPA3,=P'0'
+         ZAP   JUG,CONTADOR
+         DP    JUG,DI
+        
+         LA    1,DIREMJBD
+         OI    16(1),X'80'
+         L     15,=V(NOMUEVE) 
+         BALR  14,15
+         CLI   BYTE,C'I'
+         BE    TER2  
+ 
+         CP    JUG+7(1),=P'0'
+         BE    J1
+         WTO   'JUGADOR 2 :'
+         MVC   COM1+0(1),=C'2'
+         MVC   COM2+0(1),=C'4'
+         MVC   COM3+0(1),=C'1'
+         MVC   COM4+0(1),=C'3'
+         B     INGRESO
+J1       WTO   'JUGADOR 1 :'
+         MVC   COM1+0(1),=C'1'
+         MVC   COM2+0(1),=C'3'
+         MVC   COM3+0(1),=C'2'
+         MVC   COM4+0(1),=C'4'
+      
+* BUSCO EL ELEMENTO QUE ELIJIO
+
+INGRESO  WTOR  'INGRESE LA FILA DE LA FICHA :',FILA,,WAITECB 
+         WAIT  ECB=WAITECB  
+         CLI   FILA,C'1'
+         BL    PEDIFILA
+         CLI   FILA,C'8'
+         BH    PEDIFILA   
+
+PEDICOLU WTOR  'INGRESE LA COLUMNA DE LA FICHA :',COLUMNA,,WAITECB 
+         WAIT  ECB=WAITECB  
+         CLI   COLUMNA,C'1'
+         BL    PEDICOLU
+         CLI   COLUMNA,C'8'
+         BH    PEDICOLU
+
+         LA    7,MATRIZ
+         PACK  DOBLE,FILA
+         PACK  EMPA4,COLUMNA
+         SP    DOBLE,=P'1'
+         SP    EMPA4,=P'1'
+         MP    DOBLE,=P'8'
+         AP    DOBLE,EMPA4
+         CVB   8,DOBLE
+         AR    7,8
+         MVC   COMPARA1+0(1),0(7)
+         CLC   COMPARA1,COM1
+         BE    DAMAB
+         CLC   COMPARA1,COM2
+         BE    REINAB              
+         B     PEDIFILA
+
+* ES DAMA         
+ 
+DAMAB    WTO   'HACIA DONDE DESEA MOVERSE'
+         WTO   '1 - PARA LA IZQUIERDA'
+         WTOR  '2 - PARA LA DERECHA',DIRE,,WAITECB  
+         WAIT  ECB=WAITECB 
+         CLI   DIRE,C'1' 
+         BE    ID
+         CLI   DIRE,C'2'
+         BE    ID
+         B     DAMAB
+
+* SI YA COMIO LE PREGUNTA : PREGUNT2
+
+PREGUNT2 AP    EMPA3,=P'1'
+         WTO   'HACIA DONDE DESEA MOVERSE :'
+         WTO   '1 - PARA LA IZQUIERDA'
+         WTO   '2 - PARA LA DERECHA' 
+         WTOR  '3 - PARA NO HACER NADA',DIRE,,WAITECB   
+         WAIT  ECB=WAITECB 
+         CLI   DIRE,C'1' 
+         BE    ID
+         CLI   DIRE,C'2'
+         BE    ID
+         CLI   DIRE,C'3'
+         BE    JUGADOR2
+         B     PREGUNT2
+
+* SE FIJA QUE HAY A DONDE QUIERE MOVER         
+
+ID       LA    1,DIREMJDB
+         OI    16(1),X'80'
+         L     15,=V(DIREC) 
+         BALR  14,15
+   
+         CLI   BYTE,C'A'
+         BE    ENEMIGO
+         CLI   BYTE,C'B'
+         BE    ESPACIO
+         B     FIJARSE
+
+* SE FIJA QUE HAY DESPUES DEL ENEMIGO
+
+ENEMIGO  LA    1,DIREMJDB
+         OI    16(1),X'80'
+         L     15,=V(NEGRA) 
+         BALR  14,15
+         
+         CLI   BYTE,C'D'
+         BE    SIPUEDE
+
+* SE FIJA SI YA COMIO        
+
+FIJARSE  CP    EMPA3,=P'0'
+         BE    PEDIFILA   
+         B     JUGADOR2
+
+* VE SI HAY UNA ENEMIGA EN EL SIGUIENTE CASILLERO
+
+VER      LA    1,DIREMJDB
+         OI    16(1),X'80'
+         L     15,=V(VERDEI) 
+         BALR  14,15
+         CLI   BYTE,C'F'
+         BE    DIBUJAR1
+         B     DIBUJAR2
+
+* MUEVE A ESPACIO Y SE FIJA SI LA DAMA LLEGO 
+* A LA OTRA PUNTA PARA PONER O NO UNA REINA
+
+ESPACIO  CP    EMPA3,=P'0'     
+         BNE   JUGADOR2         
+         LA    7,MATRIZ         
+         CVB   8,DOBLE          
+         AR    7,8
+         CP    DOBLE,=P'55'
+         BH    HACER
+         CP    DOBLE,=P'8'
+         BL    HACER
+         MVC   0(1,7),COMPARA1 
+         B     DEJAR
+HACER    MVC   0(1,7),COM2     
+DEJAR    LA    1,DIREMJDB
+         OI    16(1),X'80'
+         L     15,=V(ESDI) 
+         BALR  14,15
+         B     DIBUJAR2
+
+* SI LLEGO A LA OTRA PUNTA DIBUJA EL MOVIMENTO
+* SINO VA A : VER
+
+SIPUEDE  LA    1,DIREMJDB
+         OI    16(1),X'80'
+         L     15,=V(ESDI2) 
+         BALR  14,15
+         CP    DOBLE,=P'55'
+         BH    HACE
+         CP    DOBLE,=P'8'
+         BL    HACE
+         B     VER
+HACE     LA    7,MATRIZ
+         CVB   8,DOBLE
+         AR    7,8 
+         MVC   0(1,7),COM2
+         B     DIBUJAR2
+
+* ES REINA
+
+REINAB   ZAP   PRE1,=P'1'
+         WTO   'HACIA DONDE DESEA MOVERSE :'
+         WTO   '1 - PARA ARRIBA - IZQUIERDA'
+         WTO   '2 - PARA ARRIBA - DERECHA'
+         WTO   '3 - PARA ABAJO  - IZQUIERDA'
+         WTOR  '4 - PARA ABAJO  - DERECHA',DIRE,,WAITECB  
+         WAIT  ECB=WAITECB  
+
+PEDIRPOS WTOR  'CUANTOS POSICIONES DESEA DESPLAZARSE',POS,,WAITECB   
+         WAIT  ECB=WAITECB 
+
+         CLI   POS,C'1' 
+         BL    PEDIRPOS
+         CLI   POS,C'8'
+         BH    PEDIRPOS
+         
+         CLI   DIRE,C'1' 
+         BE    UNO
+         CLI   DIRE,C'2'
+         BE    DOS
+         CLI   DIRE,C'3' 
+         BE    TRES
+         CLI   DIRE,C'4'
+         BE    CUATRO
+         B     REINAB
+
+* SI YA COMIO LE PREGUNTA : PREGUN1B
+
+PREGUN1B WTO   'HACIA DONDE DESEA MOVERSE :'
+         WTO   '1 - PARA ARRIBA - IZQUIERDA'
+         WTO   '2 - PARA ARRIBA - DERECHA'
+         WTO   '3 - PARA ABAJO  - IZQUIERDA'
+         WTO   '4 - PARA ABAJO  - DERECHA'
+         WTOR  '5 - PARA NO HACER NADA',DIRE,,WAITECB  
+         WAIT  ECB=WAITECB  
+         CLI   DIRE,C'1' 
+         BE    NUEVA
+         CLI   DIRE,C'2'
+         BE    NUEVA
+         CLI   DIRE,C'3'
+         BE    NUEVA
+         CLI   DIRE,C'4'
+         BE    NUEVA
+         CLI   DIRE,C'5'
+         BE    JUGADOR2
+         B     PREGUN1B    
+
+* SE MUEVE SEGUN LA DIRE Y LA POS        
+
+DOS      ZAP   EMPA5,=P'-7'
+         B     A
+
+UNO      ZAP   EMPA5,=P'-9'
+         B     A
+
+CUATRO   ZAP   EMPA5,=P'9'
+         B     A
+ 
+TRES     ZAP   EMPA5,=P'7'
+
+A        PACK  POSE,POS
+         ZAP   DOBLE4,DOBLE
+OTROPAS1 LA    7,MATRIZ
+         AP    DOBLE4,EMPA5 
+         CP    DOBLE4,=P'63'
+         BH    PEDIFILA
+         CP    DOBLE4,=P'0'
+         BL    PEDIFILA
+         CVB   8,DOBLE4
+         AR    7,8
+         MVC   COMPARA2+0(1),0(7)
+         CLI   COMPARA2,C'B'
+         BNE   CORTA1
+         SP    POSE,=P'1'
+         CP    POSE,=P'0'
+         BNE   OTROPAS1
+         
+         MVC   0(1,7),COMPARA1
+         LA    7,MATRIZ
+         CVB   8,DOBLE
+         AR    7,8
+         MVC   0(1,7),=C'B'
+         B     DIBUJAR2
+
+CORTA1   CLC   COMPARA2,COM3
+         BE    CONTRA
+         CLC   COMPARA2,COM4  
+         BE    CONTRA
+         B     PEDIFILA
+
+* ES FICHA CONTRARIA 
+
+CONTRA   LA    7,MATRIZ
+         AP    DOBLE4,EMPA5
+         CP    DOBLE4,=P'63'
+         BH    PEDIFILA
+         CP    DOBLE4,=P'0'
+         BL    PEDIFILA
+         CVB   8,DOBLE4
+         AR    7,8
+         MVC   COMPARA2+0(1),0(7)
+         CLI   COMPARA2,C'B'    
+         BE    COME   
+         B     PEDIFILA
+
+COME     ZAP   DOBLE3,DOBLE4
+         LA    7,MATRIZ
+         CVB   8,DOBLE3
+         AR    7,8 
+         MVC   0(1,7),COMPARA1
+         LA    7,MATRIZ
+         SP    DOBLE3,EMPA5
+         CVB   8,DOBLE3
+         AR    7,8
+         MVC   0(1,7),=C'B'
+         LA    7,MATRIZ
+         CVB   8,DOBLE
+         AR    7,8
+         MVC   0(1,7),=C'B'
+
+* SE FIJA SI TIENE AL MENOS UNA FICHA
+* CONTRARIA AL LADO
+
+VERAUNO  LA    1,DIREMJBD
+         OI    16(1),X'80'
+         L     15,=V(VERA)     
+         BALR  14,15
+         CLC   BYTE,=C'A'
+         BE    DIBUJAR2    
+         B     DIBUJAR1
+
+NUEVA    LA    1,DIREMJBD
+         OI    16(1),X'80'
+         L     15,=V(NU)     
+         BALR  14,15
+         CLC   BYTE,=C'A'
+         BE    JUGADOR2
+         B     VERAUNO
+
+* DIBUJO , SI EL CONTRARIO NO TIENE MAS FICHAS 
+* TERMINO  SINO REGRESO A REINA O A DAMA                            
+
+DIBUJAR1 LA    1,DIREMAT
+         OI    0(1),X'80'
+         L     15,=V(DIBUJAR) 
+         BALR  14,15
+         LA    7,MATRIZ
+OTRO     MVC   COMPAR+0(1),0(7)
+         CLC   COMPAR,COM3
+         BE    ES
+         CLC   COMPAR,COM4
+         BE    ES
+         AP    EMPA2,=P'1'
+         LA    7,1(7)
+         CP    EMPA2,=P'63'
+         BL    OTRO    
+         B     TER1
+ES       ZAP   EMPA2,=P'0'
+         CP    PRE1,=P'1'
+         BE    PREGUN1B
+         B     PREGUNT2
+
+* DIBUJO , SI EL CONTRARIO NO TIENE MAS FICHAS 
+* TERMINO  SINO PASO AL OTRO JUGADOR
+
+DIBUJAR2 MVC   COM1+0(1),COM3
+         MVC   COM2+0(1),COM4   
+         LA    1,DIREMAT
+         OI    0(1),X'80'
+         L     15,=V(DIBUJAR) 
+         BALR  14,15
+         LA    7,MATRIZ
+OTRO2    MVC   COMPAR+0(1),0(7)
+         CLC   COMPAR,COM3
+         BE    ES2
+         CLC   COMPAR,COM4
+         BE    ES2
+         AP    EMPA2,=P'1'
+         LA    7,1(7)
+         CP    EMPA2,=P'63'
+         BL    OTRO2    
+         B     TER1
+ES2      ZAP   EMPA2,=P'0'
+JUGADOR2 AP    CONTADOR,=P'1'
+         B     PEDIFILA
+
+TER1     CP    JUG+7(1),=P'0'
+         BE    GANO1
+         CLI   ELECCION,C'1'
+         BNE   GO1 
+G2       WTO   'GANO JUGADOR 2 !' 
+         B     TERMINO
+GANO1    CLI   ELECCION,C'1'
+         BNE   G2
+GO1      WTO   'GANO JUGADOR 1 !'
+         B     TERMINO
+
+TER2     CP    JUG+7(1),=P'0'
+         BE    GANO2
+         CLI   ELECCION,C'1'
+         BNE   GAN2 
+G2B      WTO   'GANO JUGADOR 1 !' 
+         B     TERMINO
+GANO2    CLI   ELECCION,C'1'
+         BNE   G2B 
+GAN2     WTO   'GANO JUGADOR 2 !'
+
+TERMINO  SUBEXIT
+                                  
+WAITECB  DC    F'0'
+
+COM1     DS    CL1
+COM2     DS    CL1
+COM3     DS    CL1
+COM4     DS    CL1
+
+ELECCION DS    CL1
+
+FILA     DS    CL1
+
+COLUMNA  DS    CL1 
+
+MATRIZ   DS    0CL64
+PRAPARTE DC    CL32'N1N1N1N11N1N1N1NN1N1N1N1BNBNBNBN' 
+SDAPARTE DC    CL32'NBNBNBNB2N2N2N2NN2N2N2N22N2N2N2N' 
+
+BYTE     DS    CL1
+
+JUG      DC    PL8'0'
+
+DIRE     DS    CL1
+
+DIREMAT  DC    A(MATRIZ)
+
+DIREMJDB DC    A(MATRIZ),A(JUG),A(DIRE),A(BYTE),A(DOBLE)
+
+DIREMJBD DC    A(MATRIZ),A(JUG),A(BYTE),A(DOBLE4),A(DIRE) 
+
+CONTADOR DC    PL8'0'
+
+EMPA     DS    PL2
+
+EMPA2    DC    PL2'0'
+
+EMPA3    DC    PL2'0'
+
+EMPA4    DS    PL1
+
+EMPA5    DS    PL1 
+
+COMPAR   DS    CL1
+
+COMPARA1 DS    CL1
+
+COMPARA2 DS    CL1
+
+PRE1     DC    PL1'0'
+
+POS      DS    CL1
+
+POSE     DS    PL1
+
+DOBLE    DS    D
+
+DOBLE2   DS    D
+
+DOBLE3   DS    D
+
+DOBLE4   DS    D
+
+DI       DC    PL1'2'       
+
+         END

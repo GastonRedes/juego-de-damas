@@ -1,0 +1,59 @@
+VERDEI   SUBENTRY BASE=(3)
+
+         LR    2,1
+         L     7,0(2)
+         L     6,4(2)
+         L     5,8(2)
+         L     4,12(2)
+         L     9,16(2)
+         CP    7(1,6),=P'0'
+         BE    NONIEGO
+
+         ZAP   EMPA,=P'7'
+         MP    EMPA,=P'-1' 
+         ZAP   EMPA2,=P'9'
+         MP    EMPA2,=P'-1' 
+         MVC   CAR+0(1),=C'1'
+         MVC   CAR2+0(1),=C'3'
+         B     CON
+NONIEGO  ZAP   EMPA,=P'9'
+         ZAP   EMPA2,=P'7'
+         MVC   CAR+0(1),=C'2'
+         MVC   CAR2+0(1),=C'4'
+CON      ZAP   DOBLE2,0(8,9)
+         AP    DOBLE2,EMPA
+       
+         CVB   8,DOBLE2
+         AR    7,8
+         MVC   COMPARA2+0(1),0(7)
+         
+         CLC   COMPARA2,CAR    
+         BE    PO
+         CLC   COMPARA2,CAR2
+         BE    PO
+
+         L     7,0(2)
+         ZAP   DOBLE2,0(8,9)
+         AP    DOBLE2,EMPA2
+         
+         CVB   8,DOBLE2
+         AR    7,8
+         MVC   COMPARA2+0(1),0(7)
+         
+         CLC   COMPARA2,CAR    
+         BE    PO
+         CLC   COMPARA2,CAR2
+         BE    PO
+         MVC   0(1,4),=C'G'
+         B     FIN
+PO       MVC   0(1,4),=C'F'        
+
+FIN      SUBEXIT
+
+COMPARA2 DS    CL1
+EMPA     DS    PL1
+EMPA2    DS    PL1
+DOBLE2   DS    D     
+CAR      DS    CL1
+CAR2     DS    CL1
+         END

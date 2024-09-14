@@ -1,0 +1,41 @@
+ESDI     SUBENTRY BASE=(3)
+
+         LR    2,1
+         L     7,0(2)
+         L     6,4(2)
+         L     5,8(2)
+         L     4,12(2)
+         L     9,16(2)
+         CP    7(1,6),=P'0'
+         BE    NONIEGO
+
+         CLI   0(5),C'1'
+         BE    I
+         ZAP   EMPA,=P'7'
+         MP    EMPA,=P'-1' 
+         B     SUMA
+
+I        ZAP   EMPA,=P'9'
+         MP    EMPA,=P'-1' 
+         B     SUMA
+
+NONIEGO  CLI   0(5),C'1'
+         BE    I2
+         ZAP   EMPA,=P'9'
+         B     SUMA
+ 
+I2       ZAP   EMPA,=P'7'
+
+
+SUMA     SP    0(8,9),EMPA
+         CVB   8,0(9)
+         AR    7,8
+         MVC   0(1,7),=C'B'
+         
+
+         SUBEXIT
+
+
+EMPA     DS    PL1
+
+         END

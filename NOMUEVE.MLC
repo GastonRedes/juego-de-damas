@@ -1,0 +1,127 @@
+NOMUEVE  SUBENTRY BASE=(3)
+
+         LR    2,1
+         L     7,0(2)
+         L     6,4(2)
+         L     5,8(2)
+         ZAP   DOBLE,=P'0'
+         CP    7(1,6),=P'0'
+         BE    ES1
+         MVC   CAR+0(1),=C'2'
+         MVC   CAR2+0(1),=C'4'
+         MVC   CAR3+0(1),=C'1'
+         MVC   CAR4+0(1),=C'3'
+         ZAP   EMPA,=P'-9'
+         ZAP   EMPA2,=P'-7'
+         ZAP   EMPA3,=P'7'
+         ZAP   EMPA4,=P'9'
+         B     OTRO
+ES1      MVC   CAR+0(1),=C'1'
+         MVC   CAR2+0(1),=C'3'
+         MVC   CAR3+0(1),=C'2'
+         MVC   CAR4+0(1),=C'4'
+         ZAP   EMPA,=P'7'
+         ZAP   EMPA2,=P'9'
+         ZAP   EMPA3,=P'-9'
+         ZAP   EMPA4,=P'-7'
+
+OTRO     ZAP   CONT,=P'1'
+         L     7,0(2)
+         CVB   8,DOBLE
+         AR    7,8
+         MVC   COMPAR+0(1),0(7)
+         CLC   COMPAR,CAR
+         BE    VE
+         CLC   COMPAR,CAR2
+         BE    VE
+OTRO2    AP    DOBLE,=P'1'
+         CP    DOBLE,=P'63'
+         BL    OTRO    
+         B     TERMI 
+
+VE       CP    CONT,=P'1'
+         BE    C1
+         CP    CONT,=P'2'
+         BE    C2
+         CP    CONT,=P'3'
+         BE    C3
+         CLC   COMPAR,CAR2
+         BNE   OTRO2
+         ZAP   EMPA5,EMPA4
+         B     CONTI
+C1       ZAP   EMPA5,EMPA 
+         B     CONTI
+C2       ZAP   EMPA5,EMPA2
+         B     CONTI
+C3       CLC   COMPAR,CAR2
+         BNE   OTRO2
+         ZAP   EMPA5,EMPA3        
+ 
+CONTI    L     7,0(2)
+         ZAP   DOBLE2,DOBLE
+         AP    DOBLE2,EMPA5
+         CP    DOBLE2,=P'63'
+         BH    OTRO3
+         CP    DOBLE2,=P'0'
+         BL    OTRO3     
+         CVB   8,DOBLE2
+         AR    7,8
+         MVC   COMPAR2+0(1),0(7)
+         CLC   COMPAR2,=C'B'
+         BE    TERMI2
+         CLC   COMPAR2,CAR3
+         BE    VE2
+         CLC   COMPAR2,CAR4
+         BE    VE2
+         B     OTRO3
+VE2      AP    DOBLE2,EMPA5
+         CP    DOBLE2,=P'63'
+         BH    OTRO3
+         CP    DOBLE2,=P'0'
+         BL    OTRO3     
+         CVB   8,DOBLE2
+         AR    7,8     
+         MVC   COMPAR2+0(1),0(7)
+         CLC   COMPAR2,=C'B'
+         BE    TERMI2
+OTRO3    AP    CONT,=P'1'
+         B     VE
+
+TERMI    MVC   0(1,5),=C'I'
+         B     TERMI3
+TERMI2   MVC   0(1,5),=C'H'
+
+TERMI3   SUBEXIT
+CONT     DC    PL1'1'
+DOBLE    DS    D
+DOBLE2   DS    D
+CAR      DS    CL1
+CAR2     DS    CL1
+CAR3     DS    CL1
+CAR4     DS    CL1
+EMPA     DS    PL1
+EMPA2    DS    PL1
+EMPA3    DS    PL1
+EMPA4    DS    PL1
+EMPA5    DS    PL1
+COMPAR   DS    CL1
+COMPAR2  DS    CL1
+         END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

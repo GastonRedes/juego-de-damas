@@ -1,0 +1,51 @@
+NEGRA    SUBENTRY BASE=(3)
+
+         LR    2,1
+         L     7,0(2)
+         L     6,4(2)
+         L     5,8(2)
+         L     4,12(2)
+         L     9,16(2)
+         
+         CP    7(1,6),=P'0'
+         BE    ACA
+         CLI   0(5),C'1'
+         BE    I
+         ZAP   EMPA,=P'-7'
+         B     SU
+I        ZAP   EMPA,=P'-9'
+         B     SU
+ACA      CLI   0(5),C'1'
+         BE    I2
+         ZAP   EMPA,=P'9'
+         B     SU
+ 
+I2       ZAP   EMPA,=P'7'
+
+SU       AP    0(8,9),EMPA
+         CP    0(8,9),=P'63'
+         BH    RESUL
+         CP    0(8,9),=P'0'
+         BL    RESUL
+         CVB   8,0(9)
+         AR    7,8
+         MVC   COMPARA2+0(1),0(7)
+         CLI   COMPARA2,C'B'    
+         BE    BLAN
+         B     RESUL
+
+BLAN     MVC   0(1,4),=C'D'
+         B     FIN
+RESUL    MVC   0(1,4),=C'E'
+
+FIN      SUBEXIT
+
+COMPARA2 DS    CL1
+EMPA     DS    PL1
+
+         END
+
+
+
+
+     
